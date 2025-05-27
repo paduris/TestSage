@@ -6,8 +6,7 @@ import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,8 +21,6 @@ import java.util.regex.Pattern;
 @Slf4j
 public class RiskCalculationService {
 
-    private static final Logger log = LoggerFactory.getLogger(RiskCalculationService.class);
-    
     private final OpenAiService openAiService;
     private final GitService gitService;
     private final RiskAreaConfigService riskAreaConfigService;
@@ -126,6 +123,12 @@ public class RiskCalculationService {
         List<Map<String, Object>> riskAreas = new ArrayList<>();
         
         try {
+            log.info("=== Starting AI Code Analysis ====");
+            log.info("Target File: {}", filePath);
+            log.info("File Size: {} bytes", fileContent.length());
+            log.info("Analysis Type: Risk Assessment");
+            log.info("Model: gpt-4");
+            
             String promptText = String.format("""
                     You are a code analysis expert specializing in identifying potential risks in code changes.
                     
@@ -137,8 +140,7 @@ public class RiskCalculationService {
                     %s
                     ```
                     
-                    Identify up to 3 specific areas in the code that have the highest risk and would benefit from testing.
-                    For each area, provide:
+                    For each area that needs testing, identify:
                     1. The line numbers (e.g., "10-15" or "42")
                     2. A risk level (LOW, MEDIUM, HIGH, or CRITICAL)
                     3. A brief explanation of why this area is risky and what kind of tests would be appropriate
@@ -149,21 +151,41 @@ public class RiskCalculationService {
                       {
                         "lineNumbers": "15-20",
                         "riskLevel": "HIGH",
-                        "explanation": "This method handles financial transactions without proper validation."
+                        "explanation": "This section contains complex business logic..."
                       }
                     ]
                     """, filePath, fileContent);
             
+            log.info("=== LLM Request Details ====");
+            log.info("Prompt Length: {} characters", promptText.length());
+            log.info("Generated Prompt:\n{}", promptText);
+            
+            long startTime = System.currentTimeMillis();
+            
             ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                    .model("gpt-3.5-turbo")
+                    .model("gpt-4")
                     .messages(List.of(new ChatMessage("user", promptText)))
                     .temperature(0.3)
                     .maxTokens(2000)
                     .build();
             
+            log.info("Sending request to OpenAI API...");
+            log.info("Request Configuration:");
+            log.info("- Model: {}", chatCompletionRequest.getModel());
+            log.info("- Temperature: {}", chatCompletionRequest.getTemperature());
+            log.info("- Max Tokens: {}", chatCompletionRequest.getMaxTokens());
+            
             String content = openAiService.createChatCompletion(chatCompletionRequest)
                     .getChoices().get(0).getMessage().getContent();
+                    
+            long endTime = System.currentTimeMillis();
+            long duration = endTime - startTime;
             
+            log.info("=== LLM Response Details ====");
+            log.info("Response Time: {} ms", duration);
+            log.info("Response Length: {} characters", content.length());
+            log.info("Response Content:\n{}", content);
+                
             // Extract JSON array from the response
             Pattern pattern = Pattern.compile("\\[\\s*\\{.*?\\}\\s*\\]", Pattern.DOTALL);
             Matcher matcher = pattern.matcher(content);

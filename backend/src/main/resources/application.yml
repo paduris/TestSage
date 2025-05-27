@@ -15,28 +15,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format-sql: true
 
-  ai:
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      chat:
-        options:
-          model: gpt-4
-          temperature: 0.3
-          max-tokens: 2000
-
-server:
-  port: 8080
-
-logging:
-  level:
-    com.testsage: INFO
-    org.springframework.ai: INFO
-  pattern:
-    file: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/testsage.log
 
 management:
   endpoints:
@@ -46,3 +26,24 @@ management:
   endpoint:
     health:
       show-details: always
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
+    chat:
+      options:
+        model: gpt-4
+        temperature: 0.3
+        max-tokens: 2000
+
+server:
+  port: 8080
+
+logging:
+  level:
+    '[com.testsage]': INFO
+    '[org.springframework.ai]': INFO
+  pattern:
+    file: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/testsage.log

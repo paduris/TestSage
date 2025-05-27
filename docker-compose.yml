@@ -28,12 +28,13 @@ services:
     container_name: testsage-api
     ports:
       - "8080:8080"
+    env_file:
+      - ./backend/.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/testsage
       SPRING_DATASOURCE_USERNAME: testsage
       SPRING_DATASOURCE_PASSWORD: hackathon2025
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,7 +47,7 @@ services:
       dockerfile: Dockerfile
     container_name: testsage-frontend
     ports:
-      - "3000:3000"
+      - "3000:80"
     environment:
       REACT_APP_API_URL: http://backend:8080
     depends_on:

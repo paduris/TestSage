@@ -6,8 +6,7 @@ import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class TestGenerationService {
 
-    private static final Logger log = LoggerFactory.getLogger(TestGenerationService.class);
+
     private final OpenAiService openAiService;
     private final GitService gitService;
     private final TestSuggestionService testSuggestionService;
@@ -93,46 +92,74 @@ public class TestGenerationService {
         List<Map<String, Object>> testSuggestions = new ArrayList<>();
         
         try {
+            log.info("=== Starting AI Test Generation ====");
+            log.info("Target File: {}", filePath);
+            log.info("Target Lines: {}", lineNumbers);
+            log.info("File Size: {} bytes", fileContent.length());
+            log.info("Risk Explanation: {}", riskExplanation);
+            log.info("Analysis Type: Test Generation");
+            log.info("Model: gpt-4");
+            
             String promptText = String.format("""
                     You are a test generation expert specializing in creating effective tests for high-risk code areas.
                     
                     Generate tests for the following code file:
                     
                     File: %s
-                    Lines of concern: %s
-                    Risk explanation: %s
                     
                     ```
                     %s
                     ```
                     
-                    Generate up to 2 test suggestions that would effectively test the identified risk area.
-                    For each test suggestion, provide:
-                    1. The test type (UNIT, INTEGRATION, FUNCTIONAL, PERFORMANCE, or SECURITY)
-                    2. A description of what the test should verify
-                    3. The actual test code implementation
+                    Risk Area: Lines %s
+                    Risk Explanation: %s
+                    
+                    Generate up to 3 test suggestions. For each test suggestion, provide:
+                    1. Test Type (UNIT, INTEGRATION, E2E)
+                    2. Test Description (what the test verifies)
+                    3. Test Code (actual test implementation)
                     
                     Format your response as a JSON array with objects containing "testType", "testDescription", and "testCode" fields.
                     Example:
                     [
                       {
                         "testType": "UNIT",
-                        "testDescription": "Verify that the method handles null inputs correctly",
-                        "testCode": "@Test\\npublic void testHandleNullInput() {\\n    assertThrows(IllegalArgumentException.class, () -> myMethod(null));\\n}"
+                        "testDescription": "Verifies that the method handles null input correctly",
+                        "testCode": "@Test\npublic void testNullInput() {...}"
                       }
                     ]
-                    """, filePath, lineNumbers, riskExplanation, fileContent);
+                    """, filePath, fileContent, lineNumbers, riskExplanation);
+            
+            log.info("=== LLM Request Details ====");
+            log.info("Prompt Length: {} characters", promptText.length());
+            log.info("Generated Prompt:\n{}", promptText);
+            
+            long startTime = System.currentTimeMillis();
             
             ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                    .model("gpt-3.5-turbo")
+                    .model("gpt-4")
                     .messages(List.of(new ChatMessage("user", promptText)))
                     .temperature(0.3)
                     .maxTokens(2000)
                     .build();
             
+            log.info("Sending request to OpenAI API...");
+            log.info("Request Configuration:");
+            log.info("- Model: {}", chatCompletionRequest.getModel());
+            log.info("- Temperature: {}", chatCompletionRequest.getTemperature());
+            log.info("- Max Tokens: {}", chatCompletionRequest.getMaxTokens());
+            
             String content = openAiService.createChatCompletion(chatCompletionRequest)
                     .getChoices().get(0).getMessage().getContent();
+                    
+            long endTime = System.currentTimeMillis();
+            long duration = endTime - startTime;
             
+            log.info("=== LLM Response Details ====");
+            log.info("Response Time: {} ms", duration);
+            log.info("Response Length: {} characters", content.length());
+            log.info("Response Content:\n{}", content);
+                
             // Extract JSON array from the response
             Pattern pattern = Pattern.compile("\\[\\s*\\{.*?\\}\\s*\\]", Pattern.DOTALL);
             Matcher matcher = pattern.matcher(content);

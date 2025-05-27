@@ -10,7 +10,7 @@ import java.time.Duration;
 @Configuration
 public class AiConfig {
 
-    @Value("${openai.api.key:}")
+    @Value("${openai.api.key}")
     private String openaiApiKey;
 
     @Bean

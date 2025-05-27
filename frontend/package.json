@@ -5,9 +5,9 @@
   "dependencies": {
     "@tanstack/react-query": "^5.77.2",
     "lucide-react": "^0.263.1",
-    "postcss-cli": "^11.0.1",
-    "postcss-import": "^16.1.0",
-    "postcss-nesting": "^13.0.1",
+    "postcss-cli": "^8.3.1",
+    "postcss-import": "^14.0.2",
+    "postcss-nesting": "^8.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.0",
@@ -22,8 +22,8 @@
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
-    "autoprefixer": "^9.8.8",
-    "postcss": "^7.0.39",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-preset-env": "^10.1.6",
     "react-scripts": "5.0.1",
