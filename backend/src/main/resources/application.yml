@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: testsage
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/testsage
+    username: testsage
+    password: hackathon2025
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4
+          temperature: 0.3
+          max-tokens: 2000
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.testsage: INFO
+    org.springframework.ai: INFO
+  pattern:
+    file: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/testsage.log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

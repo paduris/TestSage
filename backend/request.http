@@ -1,0 +1,109 @@
+### Variables
+@baseUrl = http://localhost:8080/api
+@repositoryId = 1
+@analysisId = 1
+
+### Repository Endpoints
+
+### Get all repositories
+GET {{baseUrl}}/repositories
+
+### Get repository by ID
+GET {{baseUrl}}/repositories/{{repositoryId}}
+
+### Create repository (full)
+POST {{baseUrl}}/repositories
+Content-Type: application/json
+
+{
+    "name": "test-repo",
+    "gitUrl": "https://github.com/username/test-repo.git",
+    "branch": "main",
+    "businessDomain": "FINTECH"
+}
+
+### Quick create repository
+POST {{baseUrl}}/repositories/quick?name=test-repo&gitUrl=https://github.com/username/test-repo.git&branch=main&businessDomain=FINTECH
+
+### Update repository
+PUT {{baseUrl}}/repositories/{{repositoryId}}
+Content-Type: application/json
+
+{
+    "name": "updated-repo",
+    "gitUrl": "https://github.com/username/updated-repo.git",
+    "branch": "main",
+    "businessDomain": "FINTECH"
+}
+
+### Delete repository
+DELETE {{baseUrl}}/repositories/{{repositoryId}}
+
+### Code Analysis Endpoints
+
+### Get all analyses
+GET {{baseUrl}}/analyses
+
+### Get analysis by ID
+GET {{baseUrl}}/analyses/{{analysisId}}
+
+### Get analyses by repository
+GET {{baseUrl}}/analyses/repository/{{repositoryId}}
+
+### Start new analysis for repository
+POST {{baseUrl}}/analyses/repository/{{repositoryId}}
+
+### Get risk areas for analysis
+GET {{baseUrl}}/analyses/{{analysisId}}/risk-areas
+
+### Generate test suggestions for analysis
+POST {{baseUrl}}/analyses/{{analysisId}}/generate-tests
+
+### Delete analysis
+DELETE {{baseUrl}}/analyses/{{analysisId}}
+
+### Local Repository Examples
+
+### 1. Analyze TestSage Backend (FINTECH)
+POST {{baseUrl}}/repositories
+Content-Type: application/json
+
+{
+    "name": "testsage-backend",
+    "gitUrl": "file:///Users/paduris/CascadeProjects/TestSage/backend",
+    "branch": "main",
+    "businessDomain": "FINTECH"
+}
+
+### 2. Analyze TestSage Frontend (FINTECH)
+POST {{baseUrl}}/repositories
+Content-Type: application/json
+
+{
+    "name": "testsage-frontend",
+    "gitUrl": "file:///Users/paduris/CascadeProjects/TestSage/frontend",
+    "branch": "main",
+    "businessDomain": "FINTECH"
+}
+
+### 3. Analyze TestSage Core (FINTECH)
+POST {{baseUrl}}/repositories
+Content-Type: application/json
+
+{
+    "name": "testsage-core",
+    "gitUrl": "file:///Users/paduris/CascadeProjects/TestSage",
+    "branch": "main",
+    "businessDomain": "FINTECH"
+}
+
+### Analysis Flow Example (using spring-petclinic)
+
+### 1. Start Analysis
+POST {{baseUrl}}/analyses/repository/1
+
+### 2. Get Risk Areas
+GET {{baseUrl}}/analyses/1/risk-areas
+
+### 3. Generate Test Suggestions
+POST {{baseUrl}}/analyses/1/generate-tests
